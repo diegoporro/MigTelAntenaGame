@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>airOS 8 - Simulador de Alineación MigTel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -10,27 +10,27 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f1f5f9; /* Slate 100 - Fondo claro */
-            color: #1e293b; /* Slate 800 - Texto oscuro */
-            overflow: hidden; /* Prevenir scroll */
+            background-color: #f1f5f9; /* Slate 100 */
+            color: #1e293b; /* Slate 800 */
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         .tech-font {
             font-family: 'Orbitron', sans-serif;
         }
 
-        /* Estilo Cabecera airOS 8 */
         .airos-header {
             background-color: #00a3e0; /* Azul Ubiquiti */
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Contenedor del visor principal */
+        /* Contenedor del visor principal responsivo */
         #viewport {
             position: relative;
             width: 100%;
-            height: 45vh;
+            height: 32vh; /* Altura optimizada para móviles por defecto */
             overflow: hidden;
             border-bottom: 3px solid #cbd5e1;
             box-shadow: inset 0 0 30px rgba(0,0,0,0.15);
@@ -38,10 +38,22 @@
             border-radius: 8px;
         }
 
+        @media (min-height: 700px) {
+            #viewport {
+                height: 38vh; /* Más alto en teléfonos de pantalla larga */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #viewport {
+                height: 45vh; /* Altura de escritorio */
+            }
+        }
+
         .sky-day { background: linear-gradient(to bottom, #7dd3fc 0%, #bae6fd 60%, #e0f2fe 100%); }
         .sky-night { background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 65%, #312e81 100%); }
 
-        /* El mundo que se mueve al panear/inclinar */
+        /* El mundo virtual que se mueve al panear/inclinar */
         #world {
             position: absolute;
             width: 300%;
@@ -51,7 +63,6 @@
             transition: transform 0.1s ease-out;
         }
 
-        /* Clases para entornos */
         .env-pattern {
             position: absolute;
             bottom: 50%;
@@ -82,10 +93,17 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             pointer-events: none;
             z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            #crosshair {
+                width: 100px;
+                height: 100px;
+            }
         }
 
         .crosshair-line {
@@ -94,12 +112,13 @@
             box-shadow: 0 0 5px rgba(14, 165, 233, 0.5);
         }
 
-        .ch-vertical { top: 0; bottom: 0; left: 49px; width: 2px; }
-        .ch-horizontal { left: 0; right: 0; top: 49px; height: 2px; }
+        .ch-vertical { top: 0; bottom: 0; left: calc(50% - 1px); width: 2px; }
+        .ch-horizontal { left: 0; right: 0; top: calc(50% - 1px); height: 2px; }
+        
         .ch-circle {
             position: absolute;
-            top: 25px; left: 25px;
-            width: 50px; height: 50px;
+            top: 15%; left: 15%;
+            width: 70%; height: 70%;
             border: 2px solid rgba(14, 165, 233, 0.4);
             border-radius: 50%;
         }
@@ -120,13 +139,14 @@
             pointer-events: none;
         }
 
-        /* Estilos de botones de control claros */
+        /* Estilos de botones de control claros y robustos */
         .btn-control {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
             color: #475569;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: all 0.1s;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-control:hover {
             background: #f1f5f9;
@@ -136,10 +156,10 @@
             background: #00a3e0;
             color: white;
             border-color: #00a3e0;
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
-        /* Rango input de Ubiquiti */
+        /* Deslizador móvil mejorado */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -147,14 +167,14 @@
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 18px;
-            width: 18px;
+            height: 24px;
+            width: 24px;
             border-radius: 50%;
             background: #00a3e0;
             border: 2px solid white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
             cursor: pointer;
-            margin-top: -7px;
+            margin-top: -10px;
         }
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
@@ -165,80 +185,69 @@
         }
     </style>
 </head>
-<body class="h-screen flex flex-col bg-slate-50">
+<body class="min-h-screen flex flex-col bg-slate-50 overflow-x-hidden">
 
-    <!-- Header Corporativo inspirado en airOS 8 -->
-    <header class="airos-header text-white px-4 py-2.5 flex justify-between items-center z-20">
-        <div class="flex items-center gap-3">
-            <span class="font-bold text-lg tracking-wider flex items-center gap-1.5">
-                <span class="bg-white text-[#00a3e0] px-1.5 py-0.5 rounded text-sm font-black">U</span>
+    <!-- Header Principal Corporativo - Adaptativo -->
+    <header class="airos-header text-white px-3 md:px-4 py-2 flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center gap-2 md:gap-3">
+            <span class="font-bold text-base md:text-lg tracking-wider flex items-center gap-1">
+                <span class="bg-white text-[#00a3e0] px-1.5 py-0.5 rounded text-xs font-black">U</span>
                 airOS<span class="font-light text-sky-200">8</span>
             </span>
             <div class="h-4 w-[1px] bg-sky-300"></div>
-            <span class="text-xs font-semibold tracking-widest text-sky-100 uppercase tech-font">MIGTEL LABS</span>
+            <span class="text-[9px] md:text-xs font-semibold tracking-wider text-sky-100 uppercase tech-font">MIGTEL LABS</span>
         </div>
         
         <!-- Estado y Nivel actual -->
-        <div class="flex items-center gap-6">
-            <div class="hidden md:flex flex-col text-right">
-                <span class="text-[10px] text-sky-100 uppercase tracking-wider font-semibold">Tecnología de Enlace</span>
-                <span class="text-xs font-bold">POWERBEAM & LITEBEAM 5AC</span>
-            </div>
-            <div class="h-6 w-[1px] bg-sky-300 hidden md:block"></div>
-            <div class="bg-sky-600/30 px-3 py-1 rounded-full border border-sky-300/30 text-xs flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div class="flex items-center gap-2 md:gap-6">
+            <div class="bg-sky-600/30 px-2.5 py-1 rounded-full border border-sky-300/30 text-[10px] md:text-xs flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="font-semibold" id="level-display">Nivel 1 / 10</span>
             </div>
-            <span class="text-xs bg-white text-sky-600 font-bold px-2 py-1 rounded shadow-sm">UISP ✔</span>
+            <span class="text-[10px] md:text-xs bg-white text-sky-600 font-bold px-1.5 py-0.5 rounded shadow-sm">UISP ✔</span>
         </div>
     </header>
 
-    <!-- Sub-Header Técnico para el Diagnóstico de Enlace (Local a Remoto) -->
-    <section class="bg-white border-b border-slate-200 px-6 py-3 flex flex-col md:flex-row justify-between items-center gap-4 text-xs shadow-sm z-10">
+    <!-- Sub-Header Técnico responsivo -->
+    <section class="bg-white border-b border-slate-200 px-4 py-2 flex flex-row justify-between items-center gap-2 text-[10px] md:text-xs shadow-sm z-10 shrink-0">
         <!-- Dispositivo Local -->
-        <div class="flex items-center gap-4 w-full md:w-1/3">
-            <div class="bg-slate-100 p-2 rounded-lg border border-slate-200">
-                <span class="text-sky-600 font-black text-sm">🛜 LOCAL</span>
-            </div>
-            <div>
-                <p class="font-bold text-slate-800">Estación_MigTel_A</p>
-                <p class="text-[10px] text-slate-400 font-mono">ID: MT-5AC-PB-01</p>
+        <div class="flex items-center gap-2 w-1/3">
+            <span class="text-sky-600 font-black hidden sm:inline">🛜 LOCAL</span>
+            <div class="truncate">
+                <p class="font-bold text-slate-800 truncate">Estación_MigTel_A</p>
+                <p class="text-[8px] md:text-[10px] text-slate-400 font-mono hidden md:block">MT-5AC-PB-01</p>
             </div>
         </div>
 
         <!-- Línea de Conexión y Distancia -->
-        <div class="flex-1 flex flex-col items-center justify-center w-full">
-            <span class="text-[10px] font-bold text-slate-400 tracking-wider">SSID: MIGTEL-BACKHAUL-5G</span>
-            <div class="w-full max-w-[200px] h-[2px] bg-slate-300 relative my-1.5">
-                <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 bg-white px-2 text-[10px] text-sky-600 font-bold border border-slate-200 rounded-full" id="distance-display">
+        <div class="flex-1 flex flex-col items-center justify-center text-center">
+            <div class="w-full max-w-[120px] md:max-w-[180px] h-[2px] bg-slate-300 relative my-1">
+                <div class="absolute -top-2 left-1/2 -translate-x-1/2 bg-white px-1.5 text-[8px] md:text-[10px] text-sky-600 font-bold border border-slate-200 rounded-full whitespace-nowrap" id="distance-display">
                     5.0 km
                 </div>
             </div>
-            <span class="text-[9px] text-slate-400">Ancho del canal: 40 MHz</span>
         </div>
 
         <!-- Dispositivo Remoto -->
-        <div class="flex items-center gap-4 w-full md:w-1/3 justify-end text-right">
-            <div>
-                <p class="font-bold text-slate-800">Sectorial_MigTel_B</p>
-                <p class="text-[10px] text-slate-400 font-mono">LiteBeam 5AC Gen2</p>
+        <div class="flex items-center gap-2 w-1/3 justify-end text-right">
+            <div class="truncate">
+                <p class="font-bold text-slate-800 truncate">Sectorial_MigTel_B</p>
+                <p class="text-[8px] md:text-[10px] text-slate-400 font-mono hidden md:block">LiteBeam 5AC Gen2</p>
             </div>
-            <div class="bg-sky-50 p-2 rounded-lg border border-sky-100">
-                <span class="text-sky-600 font-black text-sm">📡 REMOTE</span>
-            </div>
+            <span class="text-sky-600 font-black hidden sm:inline">📡 REMOTE</span>
         </div>
     </section>
 
-    <!-- Cuerpo principal con Visor de Antena y Panel de Mandos -->
-    <main class="flex-1 p-4 md:p-6 flex flex-col gap-6 overflow-hidden">
+    <!-- Área principal flexible -->
+    <main class="flex-1 p-2 md:p-4 flex flex-col gap-3 md:gap-4 overflow-hidden justify-between">
         
         <!-- Visor de la Cámara de Alineación -->
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-            <div class="flex justify-between items-center mb-2 px-1 text-xs">
+        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+            <div class="flex justify-between items-center mb-1.5 px-1 text-[10px] md:text-xs">
                 <span class="text-slate-500 font-bold flex items-center gap-1">
-                    <span class="w-2 h-2 rounded-full bg-sky-500"></span> FEED DE CÁMARA DE TORRE
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span> FEED VÍAS SATÉLITE
                 </span>
-                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-semibold font-mono">Alineación Visual</span>
+                <span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold font-mono">Vista de Mástil</span>
             </div>
             
             <div id="viewport" class="sky-day">
@@ -259,20 +268,15 @@
                         <!-- Mástil extendido -->
                         <div class="absolute top-8 left-1/2 w-1.5 h-[2000px] bg-slate-300 transform -translate-x-1/2 shadow-inner"></div>
                         
-                        <!-- Antena Ubiquiti LiteBeam 5AC (Diseño fiel en SVG) -->
-                        <div class="relative w-full h-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+                        <!-- Antena Ubiquiti LiteBeam 5AC (Gráfico SVG) -->
+                        <div class="relative w-full h-full drop-shadow-[0_2px_6px_rgba(0,0,0,0.15)]">
                             <svg viewBox="0 0 100 100" class="w-full h-full">
-                                <!-- Reflector Grid Blanco -->
                                 <path d="M 10 25 Q 50 10 90 25 L 83 75 Q 50 88 17 75 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-                                <!-- Mallas de soporte traseras -->
                                 <path d="M 25 22 L 28 77 M 50 15 L 50 83 M 75 22 L 72 77" stroke="#e2e8f0" stroke-width="1.5"/>
                                 <path d="M 15 42 L 85 42 M 16 60 L 84 60" stroke="#e2e8f0" stroke-width="1.5"/>
-                                <!-- Feed Arm e Inyector -->
                                 <path d="M 50 48 L 50 78" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round"/>
                                 <rect x="36" y="34" width="28" height="18" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-                                <!-- Logo U de Ubiquiti metálico simulado en el centro -->
                                 <path d="M 46 40 C 46 47, 54 47, 54 40" fill="none" stroke="#00a3e0" stroke-width="2.5" stroke-linecap="round"/>
-                                <!-- LED de señal de alimentación (Azul Ubiquiti parpadeante) -->
                                 <circle cx="50" cy="48" r="3" fill="#0284c7" class="animate-ping" style="animation-duration: 1.5s;"/>
                                 <circle cx="50" cy="48" r="2.5" fill="#38bdf8" />
                             </svg>
@@ -287,83 +291,78 @@
                     <div class="ch-circle"></div>
                 </div>
 
-                <!-- Indicador de estabilidad -->
-                <div id="stability-indicator" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-sky-500 border border-sky-400 text-white px-4 py-2 rounded-xl font-bold hidden tech-font z-20 shadow-md">
+                <!-- Indicador de estabilidad de conexión -->
+                <div id="stability-indicator" class="absolute top-3 left-1/2 transform -translate-x-1/2 bg-sky-500 border border-sky-400 text-white px-3 py-1.5 rounded-lg font-bold hidden tech-font z-20 shadow-md text-xs whitespace-nowrap">
                     SINCRO EN CURSO: <span id="stability-timer">3.0</span>s
                 </div>
             </div>
         </div>
 
-        <!-- Telemetría y Controles -->
-        <div class="flex-1 flex flex-col lg:flex-row gap-6">
+        <!-- Telemetría y Controles: Adaptable (Vertical en Mobile, Horizontal en Desktop) -->
+        <div class="flex flex-col lg:flex-row gap-3 md:gap-4 flex-1">
             
-            <!-- Panel Izquierdo: Vúmetro Digital de Señal -->
-            <div class="lg:w-1/3 flex flex-col justify-center items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">LECTURA DE SEÑAL DE ENTRADA</h3>
-                
-                <!-- Display Digital airOS 8 Style -->
-                <div class="text-5xl md:text-6xl font-bold tech-font text-rose-500 mb-4 transition-colors duration-300" id="signal-text">
-                    -99.0 <span class="text-xl font-normal">dBm</span>
+            <!-- Panel Vúmetro Digital de Señal -->
+            <div class="lg:w-1/3 flex flex-row lg:flex-col justify-between lg:justify-center items-center bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm gap-2">
+                <div class="flex flex-col items-start lg:items-center w-1/2 lg:w-full">
+                    <h3 class="text-slate-500 text-[9px] md:text-xs font-bold uppercase tracking-wider mb-1 text-left lg:text-center">LECTURA DE SEÑAL</h3>
+                    <div class="text-3xl md:text-5xl lg:text-6xl font-bold tech-font text-rose-500 transition-colors duration-300 whitespace-nowrap" id="signal-text">
+                        -99.0 <span class="text-sm md:text-lg font-normal">dBm</span>
+                    </div>
                 </div>
                 
-                <!-- Barra de Señal de Alta Resolución -->
-                <div class="w-full h-7 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 relative shadow-inner">
-                    <!-- Marcador de zona óptima para la aguja (-40 a -38 dBm) -->
-                    <div class="absolute h-full w-2.5 bg-sky-400 border-x border-white z-10" style="left: 96.5%;" title="Zona Óptima MigTel (-38 a -40 dBm)"></div>
-                    <div id="signal-bar" class="h-full bg-rose-500 w-0 transition-all duration-100 ease-out"></div>
-                </div>
-                
-                <div class="w-full flex justify-between text-[10px] text-slate-400 mt-2 font-bold uppercase">
-                    <span>Ruido: -99 dBm</span>
-                    <span class="text-emerald-600">Rango Ideal: -38 a -40 dBm</span>
+                <div class="w-1/2 lg:w-full flex flex-col justify-center">
+                    <div class="h-5 md:h-6 bg-slate-100 rounded-md overflow-hidden border border-slate-200 relative shadow-inner w-full">
+                        <div class="absolute h-full w-2 bg-sky-400 border-x border-white z-10" style="left: 96.5%;" title="Zona Óptima MigTel (-38 a -40 dBm)"></div>
+                        <div id="signal-bar" class="h-full bg-rose-500 w-0 transition-all duration-100 ease-out"></div>
+                    </div>
+                    <div class="flex justify-between text-[8px] md:text-[9px] text-slate-400 mt-1 font-bold uppercase">
+                        <span>Piso: -99</span>
+                        <span class="text-emerald-600">Ideal: -38 a -40</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Panel Derecho: Controles del Mástil / Antena -->
-            <div class="lg:w-2/3 flex flex-col gap-4">
+            <!-- Panel de Controles de Antena -->
+            <div class="lg:w-2/3 flex flex-col gap-2.5">
                 
                 <!-- Ajuste de Azimut (Horizontal) -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-slate-600 font-bold text-xs uppercase">Ajuste de Azimut (Horizontal)</label>
-                        <span class="tech-font text-sky-600 font-bold text-sm bg-sky-50 px-2 py-0.5 rounded border border-sky-100" id="azimuth-val">0.0°</span>
+                <div class="bg-white p-2.5 md:p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-slate-500 font-bold text-[10px] md:text-xs uppercase">Azimut (Horizontal)</label>
+                        <span class="tech-font text-sky-600 font-bold text-xs bg-sky-50 px-2 py-0.5 rounded border border-sky-100" id="azimuth-val">0.0°</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0" onmousedown="startMove('pan', -0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('pan', -0.5)" ontouchend="stopMove()">◄</button>
+                    <div class="flex items-center gap-2">
+                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0 flex items-center justify-center" onmousedown="startMove('pan', -0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('pan', -0.5)" ontouchend="stopMove()">◄</button>
                         <input type="range" id="azimuth-slider" min="-45" max="45" step="0.1" value="0" class="flex-1">
-                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0" onmousedown="startMove('pan', 0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('pan', 0.5)" ontouchend="stopMove()">►</button>
+                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0 flex items-center justify-center" onmousedown="startMove('pan', 0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('pan', 0.5)" ontouchend="stopMove()">►</button>
                     </div>
                 </div>
 
                 <!-- Ajuste de Elevación (Vertical) -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-slate-600 font-bold text-xs uppercase">Ajuste de Elevación (Vertical)</label>
-                        <span class="tech-font text-sky-600 font-bold text-sm bg-sky-50 px-2 py-0.5 rounded border border-sky-100" id="elevation-val">0.0°</span>
+                <div class="bg-white p-2.5 md:p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-slate-500 font-bold text-[10px] md:text-xs uppercase">Elevación (Vertical)</label>
+                        <span class="tech-font text-sky-600 font-bold text-xs bg-sky-50 px-2 py-0.5 rounded border border-sky-100" id="elevation-val">0.0°</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0" onmousedown="startMove('tilt', -0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('tilt', -0.5)" ontouchend="stopMove()">▼</button>
+                    <div class="flex items-center gap-2">
+                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0 flex items-center justify-center" onmousedown="startMove('tilt', -0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('tilt', -0.5)" ontouchend="stopMove()">▼</button>
                         <input type="range" id="elevation-slider" min="-20" max="20" step="0.1" value="0" class="flex-1">
-                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0" onmousedown="startMove('tilt', 0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('tilt', 0.5)" ontouchend="stopMove()">▲</button>
+                        <button class="btn-control w-12 h-10 rounded-lg text-lg font-bold flex-shrink-0 flex items-center justify-center" onmousedown="startMove('tilt', 0.5)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('tilt', 0.5)" ontouchend="stopMove()">▲</button>
                     </div>
-                </div>
-
-                <div class="text-center text-slate-400 text-[10px] font-medium uppercase tracking-wider">
-                    Usa los sliders para paneo rápido. Botones para ajuste micrométrico.
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal de Estado (Conexión / Alertas) con diseño UI Ubiquiti -->
+    <!-- Modal de Estado - Sólido y Responsivo -->
     <div id="modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300 hidden">
-        <div class="bg-white border border-slate-200 p-8 rounded-2xl max-w-md w-full text-center shadow-2xl mx-4">
-            <div class="w-16 h-16 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-slate-50 shadow-md" id="modal-icon">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+        <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl mx-4">
+            <div class="w-14 h-14 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-slate-50 shadow-md" id="modal-icon">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <h2 class="text-2xl font-bold text-slate-800 mb-2" id="modal-title">¡Enlace Establecido!</h2>
-            <p class="text-slate-500 text-sm mb-6 leading-relaxed" id="modal-text">Alineación perfecta lograda. Listo para el siguiente salto de microondas.</p>
-            <button id="modal-btn" class="bg-[#00a3e0] hover:bg-[#008ec4] text-white font-bold py-3 px-8 rounded-xl transition-colors w-full uppercase text-xs tracking-wider shadow-md" onclick="nextLevel()">
+            <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-2" id="modal-title">¡Enlace Establecido!</h2>
+            <p class="text-slate-500 text-xs md:text-sm mb-5 leading-relaxed" id="modal-text">Alineación perfecta lograda. Listo para el siguiente salto de microondas.</p>
+            <button id="modal-btn" class="bg-[#00a3e0] hover:bg-[#008ec4] text-white font-bold py-3 px-6 rounded-xl transition-colors w-full uppercase text-xs tracking-wider shadow-md" onclick="nextLevel()">
                 Siguiente Nivel
             </button>
         </div>
@@ -384,7 +383,7 @@
         let currentSignal = -99;
         let displaySignal = -99;
         const perfectSignal = -38;
-        const minWinSignal = -40; // Rango para ganar: -38 a -40
+        const minWinSignal = -40; // Rango óptimo
         
         let gameLoopInterval;
         let moveInterval = null;
@@ -422,7 +421,7 @@
         function initGame() {
             showModal(
                 "Simulador de Radioenlaces MigTel", 
-                "Prueba de competencia técnica oficial de MigTel. Tu misión consiste en apuntar la antena LiteBeam 5AC del sitio remoto hasta obtener niveles de señal óptimos entre -38 dBm y -40 dBm. La dificultad de alineación se incrementará gradualmente por la distancia.",
+                "Prueba de competencia técnica de alineación. Apunta la antena remota hasta obtener niveles de señal óptimos entre -38 dBm y -40 dBm. La atenuación y dificultad aumentarán progresivamente por la distancia.",
                 "Iniciar Diagnóstico",
                 true
             );
@@ -450,15 +449,15 @@
                 envCity.classList.add('hidden');
             }
 
-            // Escala visual de la antena por distancia
-            const scale = Math.max(0.15, 1 - (currentLevel * 0.08));
+            // Escala de la antena basada en la distancia para simular profundidad
+            const scale = Math.max(0.12, 0.9 - (currentLevel * 0.085));
             elTargetTower.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
             // Posición objetivo aleatoria
-            targetPan = (Math.random() * 64) - 32;
-            targetTilt = (Math.random() * 26) - 13;
+            targetPan = (Math.random() * 60) - 30;
+            targetTilt = (Math.random() * 24) - 12;
 
-            // Reiniciar controles
+            // Reset de controles
             currentPan = 0;
             currentTilt = 0;
             sliderAzimuth.value = currentPan;
@@ -484,31 +483,30 @@
             
             const angularError = Math.sqrt((panDiff * panDiff) + (tiltDiff * tiltDiff));
 
-            // Haz estrecho incrementado por nivel (mayor distancia = haz más angosto)
-            const difficultyMultiplier = 1.2 + (currentLevel * 0.95); 
+            // Factor de pérdida de trayectoria libre (FSPL) y haz estrecho por nivel
+            const difficultyMultiplier = 1.3 + (currentLevel * 0.95); 
             
-            let rawSignal = perfectSignal - (Math.pow(angularError, 1.25) * difficultyMultiplier);
+            let rawSignal = perfectSignal - (Math.pow(angularError, 1.22) * difficultyMultiplier);
 
-            // Jitter/Ruido atmosférico realista
+            // Jitter / Ruido atmosférico
             const jitter = (Math.random() * 0.4) - 0.2;
             rawSignal += jitter;
 
             baseSignal = Math.max(-99, Math.min(perfectSignal, rawSignal));
             
-            // Efecto de suavizado para el vúmetro analógico digital
+            // Suavizado del indicador de espectro
             displaySignal += (baseSignal - displaySignal) * 0.35;
         }
 
         function updateSignalUI() {
             const dbmValue = displaySignal.toFixed(1);
-            uiSignalText.innerHTML = `${dbmValue} <span class="text-xl font-normal">dBm</span>`;
+            uiSignalText.innerHTML = `${dbmValue} <span class="text-sm md:text-lg font-normal">dBm</span>`;
 
-            // Rango para la barra (-99 a -38 = 61 unidades de escala)
+            // Normalización del vúmetro
             let percentage = ((displaySignal - (-99)) / (perfectSignal - (-99))) * 100;
             percentage = Math.max(0, Math.min(100, percentage));
             uiSignalBar.style.width = `${percentage}%`;
 
-            // Resetear clases de color
             uiSignalText.classList.remove('text-rose-500', 'text-amber-500', 'text-emerald-500');
             uiSignalBar.classList.remove('bg-rose-500', 'bg-amber-500', 'bg-emerald-500');
 
@@ -548,21 +546,21 @@
             if (currentLevel < maxLevels) {
                 showModal(
                     "¡Enlace Optimizado!",
-                    `Has alineado con éxito el radioenlace a ${currentLevel * 5} km con una recepción óptima de ${displaySignal.toFixed(1)} dBm. Guardando configuración en UISP...`,
+                    `Has alineado con éxito el radioenlace a ${currentLevel * 5} km con una recepción de ${displaySignal.toFixed(1)} dBm. Guardando telemetría...`,
                     "Siguiente Enlace"
                 );
             } else {
                 showModal(
-                    "¡Evaluación MigTel Completada!",
-                    "Felicidades. Has completado exitosamente las pruebas técnicas en los 10 niveles de alineación. Has demostrado destreza del más alto nivel para nuestra red troncal.",
-                    "Reiniciar Entrenamiento",
+                    "¡Entrenamiento Completado!",
+                    "Felicidades. Has finalizado exitosamente el simulador de alineación de MigTel Labs con rendimiento de excelencia técnica.",
+                    "Reiniciar Simulación",
                     false,
                     true
                 );
             }
         }
 
-        // --- CONTROLES Y VISUALIZACIONES ---
+        // --- SISTEMAS DE CONTROL ---
 
         sliderAzimuth.addEventListener('input', (e) => {
             currentPan = parseFloat(e.target.value);
@@ -606,8 +604,10 @@
             uiAzimuthVal.innerText = `${currentPan > 0 ? '+' : ''}${currentPan.toFixed(1)}°`;
             uiElevationVal.innerText = `${currentTilt > 0 ? '+' : ''}${currentTilt.toFixed(1)}°`;
 
-            const pxPerDegreePan = 18;
-            const pxPerDegreeTilt = 18;
+            // Escala dinámica del movimiento para adaptarse a distintas pantallas
+            const isMobile = window.innerWidth < 1024;
+            const pxPerDegreePan = isMobile ? 12 : 18;
+            const pxPerDegreeTilt = isMobile ? 12 : 18;
 
             const moveX = -currentPan * pxPerDegreePan;
             const moveY = currentTilt * pxPerDegreeTilt; 
@@ -621,7 +621,7 @@
             elWorld.style.transform = `translate(${moveX}px, ${moveY}px)`;
         }
 
-        // --- MODALES ---
+        // --- GESTIÓN DE MODALES ---
 
         let isStartScreen = false;
         let isGameOver = false;
@@ -635,14 +635,14 @@
             
             const icon = document.getElementById('modal-icon');
             if(isStart) {
-                icon.innerHTML = `<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`;
-                icon.className = "w-16 h-16 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-slate-50 shadow-md";
+                icon.innerHTML = `<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`;
+                icon.className = "w-14 h-14 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-slate-50 shadow-md";
             } else if (isEnd) {
-                icon.innerHTML = `<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-                icon.className = "w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-slate-50 shadow-md";
+                icon.innerHTML = `<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                icon.className = "w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-slate-50 shadow-md";
             } else {
-                icon.innerHTML = `<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
-                icon.className = "w-16 h-16 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-slate-50 shadow-md";
+                icon.innerHTML = `<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                icon.className = "w-14 h-14 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-slate-50 shadow-md";
             }
 
             modal.classList.remove('hidden');
@@ -657,10 +657,17 @@
             }
         }
 
-        // Prevenir scroll en móviles
-        document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+        // Bloquear gestos por defecto para evitar scrolls no deseados en móviles
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.type !== 'range') {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         window.onload = initGame;
+
+        // Recalcular dimensiones al rotar la pantalla
+        window.onresize = updateVisuals;
 
     </script>
 </body>
