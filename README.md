@@ -44,6 +44,8 @@ Sintonía Fina (Micrométrica): Cuando estés cerca del objetivo, utiliza los bo
 
 Estabilidad de Enlace: Una vez que el medidor digital marque entre -38.0 y -40.0 dBm, se activará el temporizador de sincronización. No muevas la antena durante 3 segundos para fijar la frecuencia y completar el salto de nivel.
 
+https://diegoporro.github.io/MigTelAntenaGame/
+
 ⚙️ Cómo Desplegar en GitHub Pages
 
 Dado que el juego funciona en un solo archivo, publicarlo en internet de manera gratuita para que toda la empresa juegue es facilísimo:
@@ -57,7 +59,7 @@ En el panel izquierdo, haz clic en Pages.
 En Build and deployment -> Branch, selecciona la rama main (o master) y la carpeta / (root). Haz clic en Save.
 
 ¡Listo! Tu juego estará en vivo en pocos segundos en la dirección:
-https://<tu-usuario>.github.io/<tu-repositorio>/
+https://diegoporro.github.io/MigTelAntenaGame/
 
 🏢 Créditos
 
