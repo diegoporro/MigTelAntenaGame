@@ -348,9 +348,13 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-between items-center text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">
-                    <span>Frecuencia: 5800 MHz</span>
-                    <span class="text-emerald-600">Rango Ideal RX: -38 a -44 dBm</span>
+                <!-- Barra inferior de datos técnicos (Frecuencia, Ancho de canal, Rango ideal) -->
+                <div class="flex justify-between items-center text-[8px] md:text-[9px] text-slate-400 font-bold uppercase gap-2 flex-wrap">
+                    <div class="flex flex-col xs:flex-row gap-x-2">
+                        <span id="frequency-display">Frecuencia: 5800 MHz</span>
+                        <span id="bandwidth-display">Ancho: 40 MHz</span>
+                    </div>
+                    <span class="text-emerald-600">Ideal: -38 a -44 dBm</span>
                 </div>
             </div>
 
@@ -411,8 +415,12 @@
                             Nivel de intensidad de señal en dBm. Tu rango óptimo se sitúa entre **-38 dBm (máximo ideal)** y **-44 dBm**. Si quedas más cerca de -38 dBm obtendrás un puntaje perfecto de 10/10.
                         </li>
                         <li>
+                            <strong class="text-slate-700 block">📶 Espectro y Ancho de Canal (20 MHz / 40 MHz):</strong>
+                            En cada nivel se configura un canal y frecuencia aleatoria en la banda de **5 GHz**. Un canal de **40 MHz** permite mayor capacidad teórica pero **captará automáticamente +3 dB de ruido ambiental extra**, elevando el piso de ruido.
+                        </li>
+                        <li>
                             <strong class="text-slate-700 block">📉 Piso de Ruido (Noise Floor):</strong>
-                            Nivel de interferencia electromagnética de fondo natural o ambiental. Varía dinámicamente de acuerdo al nivel y ubicación (desde **-96.0 dBm** en áreas rurales hasta **-80.0 dBm** en áreas metropolitanas saturadas).
+                            Interferencia electromagnética de fondo. Crece con la distancia y se ve afectada por el ancho del canal (+3 dB en 40 MHz).
                         </li>
                         <li>
                             <strong class="text-slate-700 block">📡 Interferencia:</strong>
@@ -470,6 +478,15 @@
         const perfectSignal = -38;
         const minWinSignal = -44; // Umbral óptimo de alineación ampliado a -44 dBm
         
+        // --- CONFIGURACIÓN DE RADIOFRECUENCIA DINÁMICA ---
+        let currentFrequency = 5800; // Frecuencia aleatoria por nivel (MHz)
+        let currentChannelWidth = 40; // Ancho de canal por nivel (MHz)
+
+        // Frecuencias estándar en la banda de 5 GHz
+        const frequencies5GHz = [5180, 5200, 5240, 5280, 5320, 5500, 5560, 5600, 5745, 5785, 5805, 5825];
+        // Anchos de canal solicitados
+        const channelWidths = [20, 40];
+
         // --- VARIABLES DE INTERFERENCIA Y RUIDO ---
         let currentNoiseFloor = -96; // Piso de ruido base (dBm)
         let currentInterference = 0;  // Interferencia agregada (dB)
@@ -498,11 +515,13 @@
         const elStabilityIndicator = document.getElementById('stability-indicator');
         const elStabilityTimer = document.getElementById('stability-timer');
         
-        // Elementos de Diagnóstico Espectral
+        // Elementos de Diagnóstico Espectral e Ingeniería
         const uiNoiseDisplay = document.getElementById('noise-display');
         const uiInterferenceDisplay = document.getElementById('interference-display');
         const uiCinrDisplay = document.getElementById('cinr-display');
         const uiInterferenceAlert = document.getElementById('interference-alert');
+        const uiFrequencyDisplay = document.getElementById('frequency-display');
+        const uiBandwidthDisplay = document.getElementById('bandwidth-display');
 
         // Entornos
         const elViewport = document.getElementById('viewport');
@@ -550,9 +569,19 @@
                 envCity.classList.add('hidden');
             }
 
+            // Seleccionar Frecuencia y Ancho de Canal de manera aleatoria
+            currentFrequency = frequencies5GHz[Math.floor(Math.random() * frequencies5GHz.length)];
+            currentChannelWidth = channelWidths[Math.floor(Math.random() * channelWidths.length)];
+
+            // Actualizar la interfaz del canal (sub-header) y frecuencia/ancho (telemetría)
+            document.getElementById('distance-display').innerHTML = `${distanciaKm.toFixed(1)} km | Ch: ${currentChannelWidth} MHz`;
+            uiFrequencyDisplay.innerText = `Frecuencia: ${currentFrequency} MHz`;
+            uiBandwidthDisplay.innerText = `Ancho: ${currentChannelWidth} MHz`;
+
             // --- LÓGICA DE DIFICULTAD DE INTERFERENCIA Y RUIDO ---
-            // El piso de ruido va aumentando de -96 dBm (limpio) a -80 dBm (saturado)
-            currentNoiseFloor = -96 + (currentLevel * 1.6);
+            // Un canal de 40 MHz tiene un ancho de banda mayor y, por ende, capta +3 dB más de ruido electromagnético de fondo (física real de telecomunicaciones)
+            let bandwidthNoiseOffset = currentChannelWidth === 40 ? 3.0 : 0.0;
+            currentNoiseFloor = -96 + (currentLevel * 1.6) + bandwidthNoiseOffset;
             
             // Interferencia base de canales adyacentes en dB
             currentInterference = (currentLevel - 1) * 1.5; 
@@ -704,7 +733,7 @@
             if (currentLevel < maxLevels) {
                 showModal(
                     "¡Enlace Optimizado!",
-                    `Has superado la atenuación y la interferencia a ${currentLevel * 5} km logrando una recepción de ${displaySignal.toFixed(1)} dBm con un CINR de ${currentCINR.toFixed(1)} dB.<br><br><span class="font-bold text-sky-600">PUNTUACIÓN OBTENIDA EN ESTE SALTO:</span><br><span class="text-lg font-black">${score} / 10 ${stars}</span><br><br>Guardando datos en el servidor UISP...`,
+                    `Has superado la atenuación y la interferencia a ${currentLevel * 5} km logrando una recepción de ${displaySignal.toFixed(1)} dBm con un CINR de ${currentCINR.toFixed(1)} dB.<br><br><b>Configuración técnica de este salto:</b><br>• Frecuencia: ${currentFrequency} MHz<br>• Ancho de Canal: ${currentChannelWidth} MHz<br><br><span class="font-bold text-sky-600">PUNTUACIÓN OBTENIDA EN ESTE SALTO:</span><br><span class="text-lg font-black">${score} / 10 ${stars}</span><br><br>Guardando datos en el servidor UISP...`,
                     "Siguiente Enlace"
                 );
             } else {
@@ -850,6 +879,14 @@
         function closeInfoModal() {
             infoModal.classList.add('hidden');
         }
+
+        // --- EXPOSICIÓN DE FUNCIONES EN EL CONTEXTO GLOBAL ---
+        // Esto previene los ReferenceError cuando se ejecutan bajo iFrames o entornos sandbox modulares
+        window.nextLevel = nextLevel;
+        window.startMove = startMove;
+        window.stopMove = stopMove;
+        window.showInfoModal = showInfoModal;
+        window.closeInfoModal = closeInfoModal;
 
         // Bloquear gestos por defecto para evitar scrolls involuntarios en móvil
         document.addEventListener('touchmove', function(e) {
