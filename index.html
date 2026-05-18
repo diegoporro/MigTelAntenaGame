@@ -10,7 +10,7 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f1f5f9; /* Slate 100 */
+            background-color: #f1f5f9; /* Slate 100 - Fondo Claro estilo airOS */
             color: #1e293b; /* Slate 800 */
             user-select: none;
             -webkit-user-select: none;
@@ -26,11 +26,11 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Contenedor del visor principal responsivo */
+        /* Contenedor del visor principal adaptativo */
         #viewport {
             position: relative;
             width: 100%;
-            height: 32vh; /* Altura optimizada para móviles por defecto */
+            height: 32vh; /* Altura optimizada para móviles */
             overflow: hidden;
             border-bottom: 3px solid #cbd5e1;
             box-shadow: inset 0 0 30px rgba(0,0,0,0.15);
@@ -40,20 +40,20 @@
 
         @media (min-height: 700px) {
             #viewport {
-                height: 38vh; /* Más alto en teléfonos de pantalla larga */
+                height: 38vh; /* Más espacio en pantallas móviles más largas */
             }
         }
 
         @media (min-width: 1024px) {
             #viewport {
-                height: 45vh; /* Altura de escritorio */
+                height: 43vh; /* Altura de escritorio */
             }
         }
 
         .sky-day { background: linear-gradient(to bottom, #7dd3fc 0%, #bae6fd 60%, #e0f2fe 100%); }
         .sky-night { background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 65%, #312e81 100%); }
 
-        /* El mundo virtual que se mueve al panear/inclinar */
+        /* El espacio virtual que se mueve al panear o inclinar */
         #world {
             position: absolute;
             width: 300%;
@@ -79,7 +79,7 @@
             height: 50%;
         }
 
-        /* La torre objetivo que debemos alinear */
+        /* La antena remota del radioenlace */
         #target-tower {
             position: absolute;
             width: 64px;
@@ -87,7 +87,7 @@
             transform: translate(-50%, -50%);
         }
 
-        /* Visor/Crosshair fijo en el centro de la pantalla */
+        /* Visor/Crosshair fijo en el centro */
         #crosshair {
             position: absolute;
             top: 50%;
@@ -108,7 +108,7 @@
 
         .crosshair-line {
             position: absolute;
-            background-color: #0ea5e9; /* Azul de alineación */
+            background-color: #0ea5e9;
             box-shadow: 0 0 5px rgba(14, 165, 233, 0.5);
         }
 
@@ -123,7 +123,7 @@
             border-radius: 50%;
         }
 
-        /* Animación de escaneo del radar */
+        /* Animación de escaneo de radar */
         @keyframes scan {
             0% { transform: translateY(-100%); opacity: 0; }
             50% { opacity: 0.3; }
@@ -139,7 +139,7 @@
             pointer-events: none;
         }
 
-        /* Estilos de botones de control claros y robustos */
+        /* Botones de sintonía táctiles */
         .btn-control {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -159,7 +159,7 @@
             transform: scale(0.92);
         }
 
-        /* Deslizador móvil mejorado */
+        /* Deslizador móvil estilizado */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -187,7 +187,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 overflow-x-hidden">
 
-    <!-- Header Principal Corporativo - Adaptativo -->
+    <!-- Header Principal Corporativo airOS 8 / MigTel -->
     <header class="airos-header text-white px-3 md:px-4 py-2 flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-2 md:gap-3">
             <span class="font-bold text-base md:text-lg tracking-wider flex items-center gap-1">
@@ -208,7 +208,7 @@
         </div>
     </header>
 
-    <!-- Sub-Header Técnico responsivo -->
+    <!-- Sub-Header Técnico del Enlace -->
     <section class="bg-white border-b border-slate-200 px-4 py-2 flex flex-row justify-between items-center gap-2 text-[10px] md:text-xs shadow-sm z-10 shrink-0">
         <!-- Dispositivo Local -->
         <div class="flex items-center gap-2 w-1/3">
@@ -238,22 +238,22 @@
         </div>
     </section>
 
-    <!-- Área principal flexible -->
+    <!-- Área principal del simulador -->
     <main class="flex-1 p-2 md:p-4 flex flex-col gap-3 md:gap-4 overflow-hidden justify-between">
         
-        <!-- Visor de la Cámara de Alineación -->
+        <!-- Visor de la Cámara de Alineación con Antena Ubiquiti LiteBeam 5AC -->
         <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm flex flex-col">
             <div class="flex justify-between items-center mb-1.5 px-1 text-[10px] md:text-xs">
                 <span class="text-slate-500 font-bold flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span> FEED VÍAS SATÉLITE
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span> FEED DEL MÁSTIL OBJETIVO
                 </span>
-                <span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold font-mono">Vista de Mástil</span>
+                <span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold font-mono">Vista Real de Enlace</span>
             </div>
             
             <div id="viewport" class="sky-day">
                 <div class="scanline"></div>
                 <div id="world">
-                    <!-- Entornos (Ciudad o Campo) -->
+                    <!-- Entornos dinámicos -->
                     <div id="env-field" class="hidden">
                         <div class="env-pattern" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'150\'%3E%3Cellipse cx=\'100\' cy=\'150\' rx=\'200\' ry=\'100\' fill=\'%2386efac\'/%3E%3Cellipse cx=\'300\' cy=\'150\' rx=\'250\' ry=\'80\' fill=\'%234ade80\'/%3E%3C/svg%3E');"></div>
                         <div class="env-ground bg-gradient-to-b from-emerald-500 to-emerald-700 border-t border-emerald-400"></div>
@@ -298,32 +298,60 @@
             </div>
         </div>
 
-        <!-- Telemetría y Controles: Adaptable (Vertical en Mobile, Horizontal en Desktop) -->
+        <!-- Telemetría y Controles: Adaptable -->
         <div class="flex flex-col lg:flex-row gap-3 md:gap-4 flex-1">
             
-            <!-- Panel Vúmetro Digital de Señal -->
-            <div class="lg:w-1/3 flex flex-row lg:flex-col justify-between lg:justify-center items-center bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm gap-2">
-                <div class="flex flex-col items-start lg:items-center w-1/2 lg:w-full">
-                    <h3 class="text-slate-500 text-[9px] md:text-xs font-bold uppercase tracking-wider mb-1 text-left lg:text-center">LECTURA DE SEÑAL</h3>
-                    <div class="text-3xl md:text-5xl lg:text-6xl font-bold tech-font text-rose-500 transition-colors duration-300 whitespace-nowrap" id="signal-text">
-                        -99.0 <span class="text-sm md:text-lg font-normal">dBm</span>
+            <!-- Panel Vúmetro Digital de Señal y Diagnóstico de Espectro (airOS style) -->
+            <div class="lg:w-2/5 flex flex-col justify-between bg-white p-3 md:p-4 rounded-xl border border-slate-200 shadow-sm gap-3">
+                
+                <!-- Fila Superior: Medidor Principal de Señal -->
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <div class="flex flex-col">
+                        <h3 class="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-wider">Potencia Recibida (RX)</h3>
+                        <div class="text-3xl md:text-4xl lg:text-5xl font-bold tech-font text-rose-500 transition-colors duration-300" id="signal-text">
+                            -99.0 <span class="text-sm md:text-base font-normal">dBm</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Indicador Alerta Interferencia -->
+                    <div id="interference-alert" class="px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wide border transition-all duration-300 hidden">
+                        ⚠️ Interferencia Alta
+                    </div>
+                </div>
+
+                <!-- Barra de Nivel de Señal Principal -->
+                <div class="w-full">
+                    <div class="h-4 bg-slate-100 rounded overflow-hidden border border-slate-200 relative shadow-inner w-full">
+                        <!-- Zona Óptima de alineación ajustada a -44 a -38 (90.1% a 100%) -->
+                        <div class="absolute h-full bg-sky-400/30 border-x border-sky-400/50 z-10" style="left: 90.1%; right: 0;" title="Zona Óptima MigTel (-38 a -44 dBm)"></div>
+                        <div id="signal-bar" class="h-full bg-rose-500 w-0 transition-all duration-100 ease-out"></div>
+                    </div>
+                </div>
+
+                <!-- Fila de Metas de Ruido e Interferencia en tiempo real -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
+                    <div>
+                        <span class="text-[8px] md:text-[9px] text-slate-400 block font-bold uppercase">Piso de Ruido</span>
+                        <span id="noise-display" class="tech-font text-[11px] md:text-xs font-bold text-slate-700">-96.0 dBm</span>
+                    </div>
+                    <div class="border-x border-slate-200">
+                        <span class="text-[8px] md:text-[9px] text-slate-400 block font-bold uppercase">Interferencia</span>
+                        <span id="interference-display" class="tech-font text-[11px] md:text-xs font-bold text-amber-600">0.0 dB</span>
+                    </div>
+                    <div>
+                        <span class="text-[8px] md:text-[9px] text-slate-400 block font-bold uppercase">Calidad CINR</span>
+                        <span id="cinr-display" class="tech-font text-[11px] md:text-xs font-bold text-rose-500">0.0 dB</span>
                     </div>
                 </div>
                 
-                <div class="w-1/2 lg:w-full flex flex-col justify-center">
-                    <div class="h-5 md:h-6 bg-slate-100 rounded-md overflow-hidden border border-slate-200 relative shadow-inner w-full">
-                        <div class="absolute h-full w-2 bg-sky-400 border-x border-white z-10" style="left: 96.5%;" title="Zona Óptima MigTel (-38 a -40 dBm)"></div>
-                        <div id="signal-bar" class="h-full bg-rose-500 w-0 transition-all duration-100 ease-out"></div>
-                    </div>
-                    <div class="flex justify-between text-[8px] md:text-[9px] text-slate-400 mt-1 font-bold uppercase">
-                        <span>Piso: -99</span>
-                        <span class="text-emerald-600">Ideal: -38 a -40</span>
-                    </div>
+                <div class="flex justify-between items-center text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">
+                    <span>Frecuencia: 5800 MHz</span>
+                    <span class="text-emerald-600">Rango Ideal RX: -38 a -44 dBm</span>
                 </div>
             </div>
 
             <!-- Panel de Controles de Antena -->
-            <div class="lg:w-2/3 flex flex-col gap-2.5">
+            <div class="lg:w-3/5 flex flex-col gap-2.5 justify-center">
                 
                 <!-- Ajuste de Azimut (Horizontal) -->
                 <div class="bg-white p-2.5 md:p-3 rounded-xl border border-slate-200 shadow-sm">
@@ -354,14 +382,14 @@
         </div>
     </main>
 
-    <!-- Modal de Estado - Sólido y Responsivo -->
+    <!-- Modal de Estado - Ubiquiti Style -->
     <div id="modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300 hidden">
-        <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl mx-4">
+        <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl mx-4">
             <div class="w-14 h-14 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-slate-50 shadow-md" id="modal-icon">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
             <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-2" id="modal-title">¡Enlace Establecido!</h2>
-            <p class="text-slate-500 text-xs md:text-sm mb-5 leading-relaxed" id="modal-text">Alineación perfecta lograda. Listo para el siguiente salto de microondas.</p>
+            <div class="text-slate-500 text-xs md:text-sm mb-5 leading-relaxed" id="modal-text">Alineación perfecta lograda. Listo para el siguiente salto de microondas.</div>
             <button id="modal-btn" class="bg-[#00a3e0] hover:bg-[#008ec4] text-white font-bold py-3 px-6 rounded-xl transition-colors w-full uppercase text-xs tracking-wider shadow-md" onclick="nextLevel()">
                 Siguiente Nivel
             </button>
@@ -373,18 +401,25 @@
         let currentLevel = 1;
         const maxLevels = 10;
         
-        let currentPan = 0; // Azimut
-        let currentTilt = 0; // Elevación
+        let currentPan = 0; // Azimut actual
+        let currentTilt = 0; // Elevación actual
 
-        let targetPan = 0;
-        let targetTilt = 0;
+        let targetPan = 0; // Azimut objetivo aleatorio
+        let targetTilt = 0; // Elevación objetivo aleatorio
 
         let baseSignal = -99;
-        let currentSignal = -99;
         let displaySignal = -99;
         const perfectSignal = -38;
-        const minWinSignal = -40; // Rango óptimo
+        const minWinSignal = -44; // Umbral óptimo de alineación ampliado a -44 dBm
         
+        // --- VARIABLES DE INTERFERENCIA Y RUIDO ---
+        let currentNoiseFloor = -96; // Piso de ruido base (dBm)
+        let currentInterference = 0;  // Interferencia agregada (dB)
+        let currentCINR = 0;          // Relación Señal a Ruido + Interferencia (dB)
+
+        // --- REGISTRO DE CALIFICACIONES DE CADA NIVEL ---
+        let levelScores = Array(11).fill(0); // Almacena notas del nivel 1 al 10
+
         let gameLoopInterval;
         let moveInterval = null;
         let stabilityTimer = 0;
@@ -405,6 +440,12 @@
         const elStabilityIndicator = document.getElementById('stability-indicator');
         const elStabilityTimer = document.getElementById('stability-timer');
         
+        // Elementos de Diagnóstico Espectral
+        const uiNoiseDisplay = document.getElementById('noise-display');
+        const uiInterferenceDisplay = document.getElementById('interference-display');
+        const uiCinrDisplay = document.getElementById('cinr-display');
+        const uiInterferenceAlert = document.getElementById('interference-alert');
+
         // Entornos
         const elViewport = document.getElementById('viewport');
         const envField = document.getElementById('env-field');
@@ -419,9 +460,10 @@
         // --- LÓGICA PRINCIPAL ---
 
         function initGame() {
+            levelScores = Array(11).fill(0); // Limpiar historial
             showModal(
                 "Simulador de Radioenlaces MigTel", 
-                "Prueba de competencia técnica de alineación. Apunta la antena remota hasta obtener niveles de señal óptimos entre -38 dBm y -40 dBm. La atenuación y dificultad aumentarán progresivamente por la distancia.",
+                "Prueba de competencia técnica de alineación con interferencia de espectro. Apunta la antena remota hasta obtener niveles de señal óptimos entre -38 dBm y -44 dBm. La atenuación, el ruido base de RF y la interferencia aumentarán conforme progreses de nivel.",
                 "Iniciar Diagnóstico",
                 true
             );
@@ -448,6 +490,13 @@
                 envField.classList.remove('hidden');
                 envCity.classList.add('hidden');
             }
+
+            // --- LÓGICA DE DIFICULTAD DE INTERFERENCIA Y RUIDO ---
+            // El piso de ruido va aumentando de -96 dBm (limpio) a -80 dBm (saturado)
+            currentNoiseFloor = -96 + (currentLevel * 1.6);
+            
+            // Interferencia base de canales adyacentes en dB
+            currentInterference = (currentLevel - 1) * 1.5; 
 
             // Escala de la antena basada en la distancia para simular profundidad
             const scale = Math.max(0.12, 0.9 - (currentLevel * 0.085));
@@ -486,16 +535,24 @@
             // Factor de pérdida de trayectoria libre (FSPL) y haz estrecho por nivel
             const difficultyMultiplier = 1.3 + (currentLevel * 0.95); 
             
+            // Señal útil teórica sin interferencia
             let rawSignal = perfectSignal - (Math.pow(angularError, 1.22) * difficultyMultiplier);
 
-            // Jitter / Ruido atmosférico
-            const jitter = (Math.random() * 0.4) - 0.2;
-            rawSignal += jitter;
+            // Jitter / Desvanecimiento (Fading) simulado que se incrementa notablemente por nivel de interferencia
+            const maxFading = 0.2 + (currentLevel * 0.25); // Hasta 2.7dB de jitter destructivo en nivel 10
+            const fadingJitter = (Math.random() * maxFading * 2) - maxFading;
+            rawSignal += fadingJitter;
 
-            baseSignal = Math.max(-99, Math.min(perfectSignal, rawSignal));
+            // La señal nunca cae por debajo del piso de ruido actual
+            baseSignal = Math.max(currentNoiseFloor - 3, Math.min(perfectSignal, rawSignal));
             
-            // Suavizado del indicador de espectro
+            // Suavizado del indicador de espectro para sensación realista del analizador
             displaySignal += (baseSignal - displaySignal) * 0.35;
+
+            // CÁLCULO DE MÉTRICAS COMPLEMENTARIAS
+            // CINR = Señal Útil - (Piso de Ruido + Interferencia)
+            currentCINR = displaySignal - (currentNoiseFloor + currentInterference);
+            if (currentCINR < 0) currentCINR = 0;
         }
 
         function updateSignalUI() {
@@ -520,8 +577,38 @@
                 uiSignalText.classList.add('text-rose-500');
                 uiSignalBar.classList.add('bg-rose-500');
             }
+
+            // Actualización del cuadro de telemetría (Ruido e Interferencia)
+            uiNoiseDisplay.innerText = `${currentNoiseFloor.toFixed(1)} dBm`;
+            uiInterferenceDisplay.innerText = `${currentInterference.toFixed(1)} dB`;
+            uiCinrDisplay.innerText = `${currentCINR.toFixed(1)} dB`;
+
+            // Cambiar color de calidad de CINR
+            uiCinrDisplay.classList.remove('text-rose-500', 'text-amber-500', 'text-emerald-500');
+            if (currentCINR >= 25) {
+                uiCinrDisplay.classList.add('text-emerald-500');
+            } else if (currentCINR >= 12) {
+                uiCinrDisplay.classList.add('text-amber-500');
+            } else {
+                uiCinrDisplay.classList.add('text-rose-500');
+            }
+
+            // Alerta de interferencia activa en niveles altos o espectros inestables
+            if (currentLevel >= 5) {
+                uiInterferenceAlert.classList.remove('hidden');
+                if (currentLevel >= 8) {
+                    uiInterferenceAlert.className = "px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wide border bg-rose-50 text-rose-600 border-rose-200 animate-pulse";
+                    uiInterferenceAlert.innerText = "❌ Espectro Saturado";
+                } else {
+                    uiInterferenceAlert.className = "px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wide border bg-amber-50 text-amber-600 border-amber-200";
+                    uiInterferenceAlert.innerText = "⚠️ Interferencia Alta";
+                }
+            } else {
+                uiInterferenceAlert.classList.add('hidden');
+            }
         }
 
+        // Condición de victoria: Mantener señal estable entre -38 y -44 dBm por 3 segundos
         function checkWinCondition() {
             if (displaySignal >= minWinSignal && displaySignal <= perfectSignal + 0.5) {
                 stabilityTimer++;
@@ -543,19 +630,58 @@
             isLevelComplete = true;
             clearInterval(gameLoopInterval);
             
+            // Cálculo dinámico de puntuación de 1 a 10
+            // Sabiendo que el rango de victoria es -44 a -38.
+            // Si displaySignal es -44, puntuación = 1. Si es -38, puntuación = 10.
+            let rawScore = 1 + ((displaySignal - (-44)) / (-38 - (-44))) * 9;
+            let score = Math.max(1, Math.min(10, Math.round(rawScore)));
+
+            // Registrar puntuación actual
+            levelScores[currentLevel] = score;
+
+            // Emojis de estrellas basados en el puntaje
+            let stars = score >= 9 ? "⭐⭐⭐⭐⭐" : score >= 7 ? "⭐⭐⭐⭐" : score >= 5 ? "⭐⭐⭐" : "⭐⭐";
+
             if (currentLevel < maxLevels) {
                 showModal(
                     "¡Enlace Optimizado!",
-                    `Has alineado con éxito el radioenlace a ${currentLevel * 5} km con una recepción de ${displaySignal.toFixed(1)} dBm. Guardando telemetría...`,
+                    `Has superado la atenuación y la interferencia a ${currentLevel * 5} km logrando una recepción de ${displaySignal.toFixed(1)} dBm con un CINR de ${currentCINR.toFixed(1)} dB.<br><br><span class="font-bold text-sky-600">PUNTUACIÓN OBTENIDA EN ESTE SALTO:</span><br><span class="text-lg font-black">${score} / 10 ${stars}</span><br><br>Guardando datos en el servidor UISP...`,
                     "Siguiente Enlace"
                 );
             } else {
+                // Al finalizar los 10 niveles, construir la boleta de calificaciones
+                let reportCardHtml = `<div class="text-left text-slate-600"><p class="text-xs md:text-sm mb-4 leading-relaxed">¡Increíble desempeño! Has completado con éxito la alineación de toda la red troncal de microondas de <b>MigTel Labs</b>. A continuación, el desglose de tu evaluación:</p>`;
+                
+                reportCardHtml += `<div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-[160px] overflow-y-auto mb-4 font-mono">`;
+                let totalScore = 0;
+                for (let i = 1; i <= maxLevels; i++) {
+                    const s = levelScores[i] || 0;
+                    totalScore += s;
+                    let badge = s >= 9 ? "🟢 Excelente" : s >= 7 ? "🟡 Bueno" : "🔴 Regular";
+                    reportCardHtml += `<div class="flex justify-between border-b border-slate-100 pb-1">
+                        <span class="text-slate-500">Salto ${i * 5}km:</span>
+                        <span class="font-bold text-slate-800">${s}/10 (${badge})</span>
+                    </div>`;
+                }
+                reportCardHtml += `</div>`;
+                
+                let finalAverage = (totalScore / maxLevels).toFixed(1);
+                let finalBadge = finalAverage >= 9.0 ? "🏆 Certificado Senior (Nivel Experto)" : finalAverage >= 7.0 ? "🏅 Certificado Standard" : "⚙️ Certificado en Entrenamiento";
+
+                reportCardHtml += `
+                    <div class="mb-2 p-3 bg-sky-50 border border-sky-100 rounded-xl text-center">
+                        <span class="text-[10px] text-sky-700 font-bold block uppercase tracking-wider">PROMEDIO GLOBAL DE CERTIFICACIÓN</span>
+                        <span class="text-3xl font-black text-sky-600 tech-font">${finalAverage} / 10</span>
+                        <span class="text-[11px] font-bold text-sky-800 block mt-1">${finalBadge}</span>
+                    </div>
+                </div>`;
+
                 showModal(
-                    "¡Entrenamiento Completado!",
-                    "Felicidades. Has finalizado exitosamente el simulador de alineación de MigTel Labs con rendimiento de excelencia técnica.",
-                    "Reiniciar Simulación",
+                    "¡Certificación MigTel Completada!",
+                    reportCardHtml,
+                    "Reiniciar Evaluación",
                     false,
-                    true
+                    true // isEnd
                 );
             }
         }
@@ -604,7 +730,7 @@
             uiAzimuthVal.innerText = `${currentPan > 0 ? '+' : ''}${currentPan.toFixed(1)}°`;
             uiElevationVal.innerText = `${currentTilt > 0 ? '+' : ''}${currentTilt.toFixed(1)}°`;
 
-            // Escala dinámica del movimiento para adaptarse a distintas pantallas
+            // Ajustar escala según el ancho de pantalla
             const isMobile = window.innerWidth < 1024;
             const pxPerDegreePan = isMobile ? 12 : 18;
             const pxPerDegreeTilt = isMobile ? 12 : 18;
@@ -628,7 +754,7 @@
 
         function showModal(title, text, btnText, isStart = false, isEnd = false) {
             modalTitle.innerText = title;
-            modalText.innerText = text;
+            modalText.innerHTML = text; // Cambiado a innerHTML para soportar el reporte de calificaciones formateado
             modalBtn.innerText = btnText;
             isStartScreen = isStart;
             isGameOver = isEnd;
@@ -657,7 +783,7 @@
             }
         }
 
-        // Bloquear gestos por defecto para evitar scrolls no deseados en móviles
+        // Bloquear gestos por defecto para evitar scrolls involuntarios en móvil
         document.addEventListener('touchmove', function(e) {
             if (e.target.type !== 'range') {
                 e.preventDefault();
@@ -666,7 +792,7 @@
 
         window.onload = initGame;
 
-        // Recalcular dimensiones al rotar la pantalla
+        // Recalcular dimensiones al rotar o redimensionar pantalla
         window.onresize = updateVisuals;
 
     </script>
