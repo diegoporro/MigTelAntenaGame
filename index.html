@@ -198,8 +198,12 @@
             <span class="text-[9px] md:text-xs font-semibold tracking-wider text-sky-100 uppercase tech-font">MIGTEL LABS</span>
         </div>
         
-        <!-- Estado y Nivel actual -->
-        <div class="flex items-center gap-2 md:gap-6">
+        <!-- Estado, Botón de Info y Nivel actual -->
+        <div class="flex items-center gap-2 md:gap-4">
+            <!-- Botón de información -->
+            <button onclick="showInfoModal()" class="bg-sky-600/50 hover:bg-sky-500/80 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold text-sm transition-colors shadow-inner border border-sky-300/30 focus:outline-none" title="Ayuda e Instrucciones">
+                ?
+            </button>
             <div class="bg-sky-600/30 px-2.5 py-1 rounded-full border border-sky-300/30 text-[10px] md:text-xs flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="font-semibold" id="level-display">Nivel 1 / 10</span>
@@ -382,6 +386,60 @@
         </div>
     </main>
 
+    <!-- Modal de Información / Instrucciones y Glosario Técnico -->
+    <div id="info-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300 hidden">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl max-w-lg w-full shadow-2xl mx-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span class="bg-[#00a3e0] text-white px-2 py-0.5 rounded text-xs font-black">ℹ️</span>
+                    Manual de Campo - airOS 8
+                </h3>
+                <button onclick="closeInfoModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg p-1">✕</button>
+            </div>
+            
+            <div class="text-slate-600 text-xs md:text-sm space-y-4 leading-relaxed">
+                <div>
+                    <h4 class="font-bold text-[#00a3e0] mb-1">🎯 OBJETIVO DE LA MISIÓN</h4>
+                    <p>Orientar con máxima precisión la antena remota **LiteBeam 5AC** hasta que la señal del enlace local se encuentre en el rango óptimo de **-38.0 a -44.0 dBm** y mantenerla allí por **3.0 segundos** continuos sin desviaciones.</p>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <h4 class="font-bold text-[#00a3e0] mb-2">📊 DIAGNÓSTICO DE PANTALLA</h4>
+                    <ul class="space-y-2.5">
+                        <li>
+                            <strong class="text-slate-700 block">⚡ Potencia Recibida (RX):</strong>
+                            Nivel de intensidad de señal en dBm. Tu rango óptimo se sitúa entre **-38 dBm (máximo ideal)** y **-44 dBm**. Si quedas más cerca de -38 dBm obtendrás un puntaje perfecto de 10/10.
+                        </li>
+                        <li>
+                            <strong class="text-slate-700 block">📉 Piso de Ruido (Noise Floor):</strong>
+                            Nivel de interferencia electromagnética de fondo natural o ambiental. Varía dinámicamente de acuerdo al nivel y ubicación (desde **-96.0 dBm** en áreas rurales hasta **-80.0 dBm** en áreas metropolitanas saturadas).
+                        </li>
+                        <li>
+                            <strong class="text-slate-700 block">📡 Interferencia:</strong>
+                            Pérdidas de canal adyacente expresadas en decibelios (dB). Aumenta con la distancia del enlace, haciendo que la recepción sufra de desvanecimiento transitorio (*fading*).
+                        </li>
+                        <li>
+                            <strong class="text-slate-700 block">📈 Relación CINR (Calidad de Modulación):</strong>
+                            Fórmula de calidad real: $CINR = SeñalRX - (Ruido + Interferencia)$.
+                            <br><span class="text-emerald-600 font-semibold">• >25 dB: Excelente</span> (Sincronía garantizada).
+                            <br><span class="text-amber-600 font-semibold">• 12 a 24 dB: Regular</span> (Ruido alto).
+                            <br><span class="text-rose-500 font-semibold">• &lt;12 dB: Inestable</span> (Pérdida de paquetes).
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <h4 class="font-bold text-[#00a3e0] mb-1">🎮 CONTROLES OPERATIVOS</h4>
+                    <p>Usa los **sliders** para realizar giros rápidos en el mástil. Utiliza los botones de **sintonía micrométrica** (`◄ / ►` y `▼ / ▲`) para ajustar centésimas de grado y estabilizar el jitter en enlaces de larga distancia.</p>
+                </div>
+            </div>
+
+            <button onclick="closeInfoModal()" class="mt-6 bg-[#00a3e0] hover:bg-[#008ec4] text-white font-bold py-2.5 px-6 rounded-xl transition-colors w-full uppercase text-xs tracking-wider shadow-md">
+                Cerrar Manual
+            </button>
+        </div>
+    </div>
+
     <!-- Modal de Estado - Ubiquiti Style -->
     <div id="modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300 hidden">
         <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl mx-4">
@@ -451,11 +509,12 @@
         const envField = document.getElementById('env-field');
         const envCity = document.getElementById('env-city');
 
-        // Modal
+        // Modales
         const modal = document.getElementById('modal');
         const modalTitle = document.getElementById('modal-title');
         const modalText = document.getElementById('modal-text');
         const modalBtn = document.getElementById('modal-btn');
+        const infoModal = document.getElementById('info-modal');
 
         // --- LÓGICA PRINCIPAL ---
 
@@ -781,6 +840,15 @@
             } else {
                 startLevel(currentLevel + 1);
             }
+        }
+
+        // --- GESTIÓN DEL MODAL DE INFORMACIÓN ---
+        function showInfoModal() {
+            infoModal.classList.remove('hidden');
+        }
+
+        function closeInfoModal() {
+            infoModal.classList.add('hidden');
         }
 
         // Bloquear gestos por defecto para evitar scrolls involuntarios en móvil
